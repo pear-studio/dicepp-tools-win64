@@ -4,17 +4,20 @@ try:
     import openpyxl
     import rsa
     import yaml
-    import git
 except ImportError as e:
     assert False, f"当前Python环境缺少必要库\n({e})\n请检查..."
 
-from git.exc import GitCommandError, NoSuchPathError, InvalidGitRepositoryError
-
-if not git.GIT_OK:
-    git_dir = os.path.abspath("../PortableGit/bin/git.exe")
-    git.refresh(git_dir)
+try:
+    import git
+    assert git.GIT_OK
+except (ImportError, AssertionError):
+    git_path = os.path.abspath("../PortableGit/bin/git.exe")
+    assert os.path.exists(git_path)
+    print(f"找不到自带的Git, 使用PortableGit: {git_path}")
+    git.refresh(git_path)
 assert git.GIT_OK, "Git不可用, 请检查..."
 
+from git.exc import GitCommandError, NoSuchPathError, InvalidGitRepositoryError
 
 def get_choice():
     return input().upper().find("Y") != -1
@@ -67,12 +70,16 @@ def setup_dicepp() -> bool:
             fetch_info = dpp_repo.remote().pull()
             for info in fetch_info:
                 print(info)
+                is_latest = True
             print("更新完成!")
         except GitCommandError as e:
             if e.stderr and is_network_error(e.stderr):
                 print("网络连接异常, 请确认没有开启VPN或代理服务, 并再次重试")
             print(e.stderr.strip())
 
+    print("DicePP已获取")
+    if not is_latest:
+        print("DicePP未更新到最新版, 请稍后单独运行更新 [DicePP].bat再次尝试更新")
     return True
 
 
@@ -85,7 +92,7 @@ def setup_botdata() -> None:
     data_exist = os.path.exists(data_path)
     link_exist = os.path.exists(link_path)
     if not data_exist:
-        print("BotData文件夹不存在, 是否自动创建空文件夹? [Y/N]")
+        print("BotData文件夹不存在, 是否自动创建空文件夹? [Y(推荐)/N]")
         choice = get_choice()
         if choice:
             os.makedirs(data_path)
@@ -94,7 +101,7 @@ def setup_botdata() -> None:
         print("无法找到BotData, 请自行确定相关资源已准备好")
     else:
         if not link_exist:
-            print("DicePP未正确链接到BotData, 是否链接? [Y/N]")
+            print("DicePP未正确链接到BotData, 是否链接? [Y(推荐)/N]")
             choice = get_choice()
             if choice:
                 os.system(f"mklink /j {link_path} {data_path}")
@@ -133,10 +140,13 @@ def setup_gocqhttp():
 def setup_all() -> bool:
     valid = setup_dicepp()
     if valid:
+        print("-------- DicePP设置完毕 --------")
         setup_botdata()
+        print("-------- BotData设置完毕 --------")
     else:
         return False
     setup_gocqhttp()
+    print("-------- gocqhttp设置完毕 --------")
     return True
 
 
