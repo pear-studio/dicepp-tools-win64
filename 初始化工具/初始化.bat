@@ -5,8 +5,8 @@ if not exist %GIT_EXE% (
     goto end
 )
 
-rem setx GIT_PYTHON_GIT_EXECUTABLE %GIT_EXE%
-export GIT_PYTHON_REFRESH=quiet
+rem set GIT_PYTHON_GIT_EXECUTABLE %GIT_EXE%
+set GIT_PYTHON_REFRESH=quiet
 set PYTHON_EXE=..\Python\python.exe
 if not exist %PYTHON_EXE% (
     echo Need %PYTHON_EXE% !
