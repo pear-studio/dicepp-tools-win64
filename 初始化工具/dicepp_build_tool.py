@@ -99,14 +99,15 @@ def setup_botdata() -> None:
         data_exist = os.path.exists(data_path)
     if not data_exist:
         print("无法找到BotData, 请自行确定相关资源已准备好")
-    else:
-        if not link_exist:
-            print("DicePP未正确链接到BotData, 是否链接? [Y(推荐)/N]")
-            choice = get_choice()
-            if choice:
-                os.system(f"mklink /j {link_path} {data_path}")
-            else:
-                print("请自行确定相关资源已准备好")
+        return
+    
+    if not link_exist:
+        print("DicePP未正确链接到BotData, 是否链接? [Y(推荐)/N]")
+        choice = get_choice()
+        if choice:
+            os.system(f"mklink /j \"{link_path}\" \"{data_path}\"")
+        else:
+            print("请自行确定相关资源已准备好")
 
 # gocqhttp
 gocq_path = os.path.join(base_path, "go-cqhttp_windows_amd64")
@@ -121,18 +122,23 @@ def setup_gocqhttp():
         os.system(f"copy {config_temp_path} {config_path}")
     with open(config_path, 'r', encoding='utf-8') as f:
         config = yaml.full_load(f)
-    if config["account"]["uin"] == 123456789:
-        print("请设置QQ账号")
-        account = input().strip()
+    account_cur = config["account"]["uin"]
+    choice = False
+    if account_cur != 123456789:
+        print(f"当前账号为:{account_cur}, 是否需要重新设置? [Y/N]")
+        choice = get_choice()
+    if account_cur == 123456789 or choice:
+        print("请设置机器人QQ账号:")
+        account_new = input().strip()
         try:
-            int(account)
+            int(account_new)
         except ValueError:
-            print(f"输入的账号{account}必须是数字!")
+            print(f"输入的账号{account_new}必须是数字!")
             return
 
         with open(config_path, 'r', encoding='utf-8') as f:
             text = f.read()
-        text = text.replace("123456789", account, 1)
+        text = text.replace(account_cur, account_new, 1)
         with open(config_path, 'w', encoding='utf-8') as f:
             f.write(text)
 
