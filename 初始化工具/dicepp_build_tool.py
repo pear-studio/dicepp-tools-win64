@@ -138,7 +138,7 @@ def setup_gocqhttp():
 
         with open(config_path, 'r', encoding='utf-8') as f:
             text = f.read()
-        text = text.replace(account_cur, account_new, 1)
+        text = text.replace(str(account_cur), account_new, 1)
         with open(config_path, 'w', encoding='utf-8') as f:
             f.write(text)
 
