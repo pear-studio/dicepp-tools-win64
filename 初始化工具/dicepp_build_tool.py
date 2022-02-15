@@ -32,7 +32,8 @@ base_path = os.path.abspath("..")
 
 # DicePP Source
 dpp_path = os.path.join(base_path, "DicePP")
-dpp_git_path = "https://github.com/pear-studio/nonebot-dicepp.git"
+# dpp_git_path = "https://github.com/pear-studio/nonebot-dicepp.git"
+dpp_git_path = "https://gitee.com/pear_studio/nonebot-dicepp.git"
 
 
 def setup_dicepp() -> bool:
